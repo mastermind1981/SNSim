@@ -1,11 +1,17 @@
 package idios;
 
+import idios.util.Utilities;
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class User extends Tasteable {
     
     private Map<Item, Vote> itemsToVotes = new HashMap<>();
+    
+    private int timeToNextItem = 0;
+    private Item reading = null;
 
     public User(TasteProfile taste, int timestamp) {
         super(taste, timestamp);
@@ -19,7 +25,7 @@ public class User extends Tasteable {
         // Do we need to adjust this? What if items meeting critera 1 with a lot don't meet criteria 2?
         // Should the user just downvote anything he doesn't upvote, or should he have a range of apathy where he doesn't vote at all (like now)?
         double rating = this.taste.dot(item.taste);
-        System.out.println("\tUser "+ this + " rated \n\titem "+ item +" as " + String.format("%0$.2f", rating));
+        //System.out.println("\tUser "+ this + " rated \n\titem "+ item +" as " + String.format("%0$.2f", rating));
         if (rating > this.taste.length) {
             voteUp(item);
         } else if (rating < -0.5) {
@@ -50,4 +56,43 @@ public class User extends Tasteable {
     public boolean votedOnItem(Item item) {
         return itemsToVotes.containsKey(item);
     }
+    
+    public void step(Topic topic) {
+        if (timeToNextItem > 0) {
+            timeToNextItem--;
+        } else if (reading != null) {
+            finishReadingItem();
+        } else {
+            reading = selectNextItemToRead(topic);
+            startReadingItem();
+        }
+    }
+
+    public void finishReadingItem() {
+        this.voteAccordingToTaste(reading);
+        reading = null;
+        timeToNextItem = 0; // can't be TOO SAFE
+    }
+
+    public void startReadingItem() {
+        if(reading != null)
+            timeToNextItem = reading.secondsToRead;
+    }
+
+    public Item selectNextItemToRead(Topic topic) {
+        List<Item> items = topic.getItemManager().getRecords();
+        Item item = null;
+        for (int i = 0; i < 20; i++) {
+            try {
+                item = items.get(items.size() - 1 - i);
+                if (!this.votedOnItem(item) && Utilities.percentChance(.5)) {
+                    return item;
+                }
+            } catch (IndexOutOfBoundsException e) {
+                break;
+            }
+        }
+        return null;
+    }
+    
 }

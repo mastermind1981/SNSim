@@ -3,13 +3,14 @@ package idios;
 import idios.util.Utilities;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 public class Simulation {
 
     private static int worldTime = 0;
-    private static int linksPerHour = 5;
+    private static int linksPerHour = 100;
     private static double minutesPerLink = 3;
     private static final int initialUsers = 10;
 
@@ -20,8 +21,14 @@ public class Simulation {
     private Map<String, Topic>     topics      = new HashMap<>();
     private TasteableManager<User> userManager = TasteableManagerFactory
                                                        .createUserManager(0);
+    
+    public Topic getTopic(String name) {
+        return topics.get(name);
+    }
 
     private RankingStrategy        rankingStrategy;
+    
+    private List<User> oldfags = new LinkedList<>();
 
     public Simulation(RankingStrategy rankingStrategy) {
         this.rankingStrategy = rankingStrategy;
@@ -29,8 +36,9 @@ public class Simulation {
 
     public void setup() {
         User original = userManager.createRandom();
+        oldfags.add(original);
         for (int i = 0; i < initialUsers - 1; i++) {
-            userManager.createMutate(original);
+            oldfags.add(userManager.createMutate(original));
         }
         
         topics.put("kings", new Topic());
@@ -48,28 +56,59 @@ public class Simulation {
             itemManager.createSkewed();
         }
         
-        // Idea... time delay for voting to ensure not lots of quick votes.
+        // Idea... time delay for voting to ensure not lots of quick votes. We record every transaction and we don't want a dos.
         
         for (final User user : userManager.getRecords()) {
-            if (Utilities.percentChance(minutesPerLink/60.0)) {
-                List<Item> items = itemManager.getRecords();
-                Item item = null;
-                for (int i = items.size() - 1; i >= 0; i--) {
-                    item = items.get(i);
-                    if (!user.votedOnItem(item)) {
-                        user.voteAccordingToTaste(item);
-                    }
-                }
-            }
+            user.step(topics.get("kings"));
         }
         
         worldTime++;
     }
     
+    public RankingStrategy getRankingStrategy() {
+        return rankingStrategy;
+    }
+    
+    public List<Item> frontPage(final String topicName) {
+        return rankingStrategy.rankItems(topics.get(topicName).getItemManager().getRecords()).subList(0, 10);
+    }
+    
+    public double[] judgeFitnessOfFrontPage(final String topicName) {
+        List<Item> frontPage = this.frontPage(topicName);
+        TasteProfile[] tastes = new TasteProfile[frontPage.size()];
+        List<User> users = userManager.getRecords();
+        double[] fitness = new double[users.size()];
+        
+        for (int i = 0; i < frontPage.size(); i++) {
+            tastes[i] = frontPage.get(i).taste;
+        }
+        
+        for (int i = 0; i < users.size(); i++) {
+            fitness[i] = users.get(i).taste.evaluateFitness(tastes); // Refactor this to make Tasteables evaluate a Tasteables List
+        }
+        
+        return fitness;
+    }
+    
     public static void main(String[] args) {
         Utilities.seed(42089);
-        Simulation sim = new Simulation(null);
+        Simulation sim = new Simulation(new RedditRanking());
         sim.setup();
         sim.run(60*60*24);
+        
+        double[] fitness = sim.judgeFitnessOfFrontPage("kings");
+        
+        System.out.println("Kings front page: ");
+        for (Item item : sim.frontPage("kings")) {
+            System.out.print(item);
+            System.out.print(": score ");
+            System.out.print(sim.rankingStrategy.score(item));
+            System.out.print(", time: ");
+            System.out.println(item.timestamp);
+        }
+        
+        for(int i = 0; i < fitness.length; i++) {
+            System.out.println("User " + sim.userManager.get(i) + ": "+ String.format("%0$.2f", fitness[i]));
+        }
     }
 }
