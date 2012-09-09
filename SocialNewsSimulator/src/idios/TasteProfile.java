@@ -11,10 +11,24 @@ import idios.util.Utilities;
 public class TasteProfile {
     public static final int NUM_PREFS = 3;
     private final double[]        preferences;
+    private final String repr;
+    public final double length;
+    public final double lengthSquared;
 
     public TasteProfile(double[] prefs) {
         assert prefs.length == NUM_PREFS;
         preferences = prefs;
+        StringBuilder s = new StringBuilder();
+        s.append("[");
+        for(double pref: prefs) {
+            s.append(String.format("%0$.2f", pref));
+            s.append(", ");
+        }
+        s.delete(s.length()-2, s.length());
+        s.append("]");
+        repr = s.toString();
+        lengthSquared = this.dot(this);
+        length = Math.sqrt(lengthSquared);
     }
     
     public TasteProfile(TasteProfile source) {
@@ -53,14 +67,6 @@ public class TasteProfile {
         return sum;
     }
     
-    public double lengthSquared(){
-        return dot(this);
-    }
-    
-    public double length(){
-        return Math.sqrt(lengthSquared());
-    }
-    
     public double evaluateFitness(TasteProfile[] items) {
         //double[] scores = new double[items.length];
         //Do we want something more nuanced? Weight things over a certain amount? Discard a certain number of things below a certain amount?
@@ -72,7 +78,7 @@ public class TasteProfile {
     }
     
     public String toString() {
-        return Arrays.toString(preferences);
+        return repr;
     }
 
 }

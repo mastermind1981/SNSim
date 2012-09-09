@@ -21,7 +21,8 @@ public class Item extends Tasteable {
     public Vote recordVote(User voter, int voteValue) {
         Vote vote = new Vote(voter, this, voteValue);
         topic.getVoteManager().add(vote);
-        System.out.println("Recorded new vote: "+ vote+ " by user "+ voter );
+        if(voteValue != 0)
+            System.out.println("Recorded new vote: "+ vote+ " by user "+ voter +" on item " + this );
         return vote;
     }
     

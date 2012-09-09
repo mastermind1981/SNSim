@@ -67,8 +67,9 @@ public class Simulation {
     }
     
     public static void main(String[] args) {
+        Utilities.seed(42089);
         Simulation sim = new Simulation(null);
         sim.setup();
-        sim.run(60*60);
+        sim.run(60*60*24);
     }
 }
