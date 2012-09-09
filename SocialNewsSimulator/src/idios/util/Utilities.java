@@ -18,4 +18,8 @@ public class Utilities {
     public static boolean percentChance(double chance) {
         return rand.nextDouble() < chance;
     }
+    
+    public static void seed(long seed) {
+        rand.setSeed(seed);
+    }
 }
