@@ -1,48 +1,38 @@
 package idios.gui;
 
-import idios.Item;
 import idios.RedditRanking;
 import idios.Simulation;
 
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
-import javax.swing.BoxLayout;
-import java.awt.GridLayout;
 import javax.swing.JPanel;
 import javax.swing.JTable;
-import javax.swing.JTextPane;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-import java.awt.Component;
-import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
-import javax.swing.table.DefaultTableModel;
 import java.awt.FlowLayout;
 import javax.swing.JList;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 
 public class ApplicationView {
 
     private JFrame frame;
     private JTable frontPageLinks;
-    private JTextField textInitialUsers;
-    private JTextField textNewUsers;
+    private JSpinner spnInitialUsers;
+    private JSpinner spnNewUsers;
     
     private Simulation sim;
+    private JTextField txtSatisfaction;
 
     /**
      * Launch the application.
@@ -64,12 +54,12 @@ public class ApplicationView {
      * Create the application.
      */
     public ApplicationView() {
-        initSimulation();
+        initSimulation(10, 0);
         initialize();
     }
 
-    private void initSimulation() {
-        sim = new Simulation(new RedditRanking());
+    private void initSimulation(int numInitialUsers, int numNewUsers) {
+        sim = new Simulation(new RedditRanking(), numInitialUsers, numNewUsers);
         sim.setup();
         sim.run(60*60*24);
     }
@@ -92,27 +82,27 @@ public class ApplicationView {
         simulationSettingsPanel.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
         GroupLayout groupLayout = new GroupLayout(frame.getContentPane());
         groupLayout.setHorizontalGroup(
-            groupLayout.createParallelGroup(Alignment.LEADING)
-                .addGroup(groupLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .addComponent(frontPagePanel, GroupLayout.PREFERRED_SIZE, 457, GroupLayout.PREFERRED_SIZE)
-                    .addPreferredGap(ComponentPlacement.RELATED)
-                    .addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-                        .addComponent(simulationSettingsPanel, GroupLayout.DEFAULT_SIZE, 367, Short.MAX_VALUE)
-                        .addComponent(userListPanel, GroupLayout.DEFAULT_SIZE, 367, Short.MAX_VALUE))
-                    .addContainerGap())
+        	groupLayout.createParallelGroup(Alignment.LEADING)
+        		.addGroup(groupLayout.createSequentialGroup()
+        			.addContainerGap()
+        			.addComponent(frontPagePanel, GroupLayout.DEFAULT_SIZE, 457, Short.MAX_VALUE)
+        			.addPreferredGap(ComponentPlacement.RELATED)
+        			.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+        				.addComponent(simulationSettingsPanel, GroupLayout.DEFAULT_SIZE, 377, Short.MAX_VALUE)
+        				.addComponent(userListPanel, GroupLayout.DEFAULT_SIZE, 377, Short.MAX_VALUE))
+        			.addContainerGap())
         );
         groupLayout.setVerticalGroup(
-            groupLayout.createParallelGroup(Alignment.LEADING)
-                .addGroup(groupLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-                        .addGroup(groupLayout.createSequentialGroup()
-                            .addComponent(userListPanel, GroupLayout.PREFERRED_SIZE, 268, GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(ComponentPlacement.RELATED)
-                            .addComponent(simulationSettingsPanel, GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE))
-                        .addComponent(frontPagePanel, GroupLayout.DEFAULT_SIZE, 533, Short.MAX_VALUE))
-                    .addContainerGap())
+        	groupLayout.createParallelGroup(Alignment.LEADING)
+        		.addGroup(groupLayout.createSequentialGroup()
+        			.addContainerGap()
+        			.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+        				.addGroup(groupLayout.createSequentialGroup()
+        					.addComponent(userListPanel, GroupLayout.PREFERRED_SIZE, 268, GroupLayout.PREFERRED_SIZE)
+        					.addPreferredGap(ComponentPlacement.RELATED)
+        					.addComponent(simulationSettingsPanel, GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE))
+        				.addComponent(frontPagePanel, GroupLayout.DEFAULT_SIZE, 543, Short.MAX_VALUE))
+        			.addContainerGap())
         );
         
         final JSpinner simDurationSpinner = new JSpinner();
@@ -156,15 +146,15 @@ public class ApplicationView {
         
         JLabel lblNumberOfInitial = new JLabel("Number of initial users");
         
-        textInitialUsers = new JTextField();
-        lblNumberOfInitial.setLabelFor(textInitialUsers);
-        textInitialUsers.setColumns(10);
+        spnInitialUsers = new JSpinner();
+        spnInitialUsers.setModel(new SpinnerNumberModel(500, 0, 20000, 1));
+        lblNumberOfInitial.setLabelFor(spnInitialUsers);
         
         JLabel lblNumberOfNew = new JLabel("Number of new users");
         
-        textNewUsers = new JTextField();
-        lblNumberOfNew.setLabelFor(textNewUsers);
-        textNewUsers.setColumns(10);
+        spnNewUsers = new JSpinner();
+        spnNewUsers.setModel(new SpinnerNumberModel(1000, 0, 100000, 1));
+        lblNumberOfNew.setLabelFor(spnNewUsers);
         GroupLayout gl_simSettingsPanel = new GroupLayout(simSettingsPanel);
         gl_simSettingsPanel.setHorizontalGroup(
             gl_simSettingsPanel.createParallelGroup(Alignment.LEADING)
@@ -174,8 +164,8 @@ public class ApplicationView {
                         .addComponent(lblNumberOfNew))
                     .addPreferredGap(ComponentPlacement.RELATED, 65, Short.MAX_VALUE)
                     .addGroup(gl_simSettingsPanel.createParallelGroup(Alignment.LEADING, false)
-                        .addComponent(textNewUsers)
-                        .addComponent(textInitialUsers, GroupLayout.DEFAULT_SIZE, 172, Short.MAX_VALUE)))
+                        .addComponent(spnNewUsers)
+                        .addComponent(spnInitialUsers, GroupLayout.DEFAULT_SIZE, 172, Short.MAX_VALUE)))
         );
         gl_simSettingsPanel.setVerticalGroup(
             gl_simSettingsPanel.createParallelGroup(Alignment.LEADING)
@@ -183,37 +173,101 @@ public class ApplicationView {
                     .addContainerGap()
                     .addGroup(gl_simSettingsPanel.createParallelGroup(Alignment.BASELINE)
                         .addComponent(lblNumberOfInitial)
-                        .addComponent(textInitialUsers, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                        .addComponent(spnInitialUsers, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                     .addPreferredGap(ComponentPlacement.UNRELATED)
                     .addGroup(gl_simSettingsPanel.createParallelGroup(Alignment.BASELINE)
                         .addComponent(lblNumberOfNew)
-                        .addComponent(textNewUsers, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                        .addComponent(spnNewUsers, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                     .addContainerGap(139, Short.MAX_VALUE))
         );
         simSettingsPanel.setLayout(gl_simSettingsPanel);
         simulationSettingsPanel.setLayout(gl_simulationSettingsPanel);
-        userListPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
         
         JList userList = new JList();
-        userListPanel.add(userList);
-        frontPagePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+        
+        JLabel lblInitialUserSatisfaction = new JLabel("Initial user satisfaction");
+        
+        txtSatisfaction = new JTextField();
+        txtSatisfaction.setEditable(false);
+        txtSatisfaction.setColumns(10);
+        GroupLayout gl_userListPanel = new GroupLayout(userListPanel);
+        gl_userListPanel.setHorizontalGroup(
+        	gl_userListPanel.createParallelGroup(Alignment.LEADING)
+        		.addGroup(gl_userListPanel.createSequentialGroup()
+        			.addGroup(gl_userListPanel.createParallelGroup(Alignment.LEADING)
+        				.addGroup(gl_userListPanel.createSequentialGroup()
+        					.addContainerGap()
+        					.addComponent(lblInitialUserSatisfaction))
+        				.addGroup(gl_userListPanel.createSequentialGroup()
+        					.addGap(186)
+        					.addGroup(gl_userListPanel.createParallelGroup(Alignment.LEADING)
+        						.addComponent(txtSatisfaction, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        						.addComponent(userList))))
+        			.addContainerGap(53, Short.MAX_VALUE))
+        );
+        gl_userListPanel.setVerticalGroup(
+        	gl_userListPanel.createParallelGroup(Alignment.LEADING)
+        		.addGroup(gl_userListPanel.createSequentialGroup()
+        			.addGap(5)
+        			.addComponent(userList)
+        			.addPreferredGap(ComponentPlacement.RELATED)
+        			.addGroup(gl_userListPanel.createParallelGroup(Alignment.BASELINE)
+        				.addComponent(lblInitialUserSatisfaction)
+        				.addComponent(txtSatisfaction, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+        			.addContainerGap(236, Short.MAX_VALUE))
+        );
+        userListPanel.setLayout(gl_userListPanel);
+        
+        JScrollPane scrollPane = new JScrollPane();
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         
         final JList<String> itemList = new JList<>();
+        scrollPane.setViewportView(itemList);
         itemList.setVisibleRowCount(80);
 //        itemList.setBounds(228, 7, 0, 0);
         itemList.setModel(getKingsFrontPageModel());
-        frontPagePanel.add(itemList);
+        GroupLayout gl_frontPagePanel = new GroupLayout(frontPagePanel);
+        gl_frontPagePanel.setHorizontalGroup(
+        	gl_frontPagePanel.createParallelGroup(Alignment.LEADING)
+        		.addGroup(Alignment.TRAILING, gl_frontPagePanel.createSequentialGroup()
+        			.addContainerGap()
+        			.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 429, Short.MAX_VALUE)
+        			.addContainerGap())
+        );
+        gl_frontPagePanel.setVerticalGroup(
+        	gl_frontPagePanel.createParallelGroup(Alignment.LEADING)
+        		.addGroup(gl_frontPagePanel.createSequentialGroup()
+        			.addContainerGap()
+        			.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 522, Short.MAX_VALUE)
+        			.addContainerGap())
+        );
+        frontPagePanel.setLayout(gl_frontPagePanel);
         groupLayout.setAutoCreateGaps(true);
         frame.getContentPane().setLayout(groupLayout);
         
         btnRun.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent arg0) {
+            public void mouseClicked(MouseEvent e) {
                 int dur = (Integer) simDurationSpinner.getValue();
                 sim.run(dur);
                 itemList.setModel(getKingsFrontPageModel());
+                double satisfaction = 0;
+                double[] fitness = sim.judgeFitnessOfFrontPage("kings");
+                for (int i = 0; i < fitness.length; i++) {
+                	satisfaction += fitness[i];
+                }
+                satisfaction /= fitness.length;
+                txtSatisfaction.setText(String.format("%0$.2f", satisfaction));
             }
         });
+        
+        btnInitialize.addMouseListener(new MouseAdapter() {
+        	public void mouseClicked(MouseEvent e) {
+        		int numInitialUsers = (Integer) spnInitialUsers.getValue();
+        		int numNewUsers = (Integer) spnNewUsers.getValue();
+        		initSimulation(numInitialUsers, numNewUsers);
+        	}
+		});
     }
 
     private ItemListModel getKingsFrontPageModel() {

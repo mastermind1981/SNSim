@@ -12,7 +12,8 @@ public class Simulation {
     private static int worldTime = 0;
     private static int linksPerHour = 100;
     private static double minutesPerLink = 3;
-    private static final int initialUsers = 10;
+    private final int initialUsers;
+    private final int newUsers;
 
     public static int getWorldTime() {
         return worldTime;
@@ -28,21 +29,28 @@ public class Simulation {
 
     private RankingStrategy        rankingStrategy;
     
-    private List<User> oldfags = new LinkedList<>();
+    private List<User> veterans = new LinkedList<>();
 
-    public Simulation(RankingStrategy rankingStrategy) {
+    public Simulation(RankingStrategy rankingStrategy, int numInitialUsers, int numNewUsers) {
         this.rankingStrategy = rankingStrategy;
+        this.initialUsers = numInitialUsers;
+        this.newUsers = numNewUsers;
+        worldTime = 0;
     }
 
     public void setup() {
-        User original = userManager.createRandom();
-        oldfags.add(original);
-        for (int i = 0; i < initialUsers - 1; i++) {
-            oldfags.add(userManager.createMutate(original));
-        }
+        createFounderPopulation(); //idea: inject new users, mutate taste from an existing item to simulate an inflow of users from a shared link.
         
         topics.put("kings", new Topic());
     }
+
+	private void createFounderPopulation() {
+		User original = userManager.createRandom();
+        veterans.add(original);
+        for (int i = 0; i < initialUsers - 1; i++) {
+            veterans.add(userManager.createMutate(original));
+        }
+	}
 
     public void run(int duration) {
         for (int i = 0; i < duration; i++) {
@@ -92,7 +100,7 @@ public class Simulation {
     
     public static void main(String[] args) {
         Utilities.seed(42089);
-        Simulation sim = new Simulation(new RedditRanking());
+        Simulation sim = new Simulation(new RedditRanking(), 10, 0);
         sim.setup();
         sim.run(60*60*24);
         

@@ -1,15 +1,13 @@
 package idios;
 
 
-import java.util.Arrays;
-
 import idios.util.Utilities;
 
 // cosine to check taste compatibility, dot to check rating,
 // short vector means more discriminating, long means lower standards.
 
 public class TasteProfile {
-    public static final int NUM_PREFS = 1;
+    public static final int NUM_PREFS = 3;
     private final double[]        preferences;
     private final String repr;
     public final double length;

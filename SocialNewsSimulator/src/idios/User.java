@@ -80,11 +80,40 @@ public class User extends Tasteable {
     }
 
     public Item selectNextItemToRead(Topic topic) {
-        List<Item> items = topic.getItemManager().getRecords();
-        Item item = null;
-        for (int i = 0; i < 20; i++) {
+    	if (Utilities.percentChance(.33)) {
+    		return selectFromNewItems(topic);
+    	} else {
+    		return selectFromFrontPage(topic);
+    	}
+    }
+    
+    private Item selectFromNewItems(Topic topic) {
+    	List<Item> items = topic.getItemManager().getRecords();
+    	Item item = null;
+    	
+        for (int i = 0; i < Math.min(20, items.size()); i++) {
             try {
                 item = items.get(items.size() - 1 - i);
+                if (!this.votedOnItem(item) && Utilities.percentChance(.5)) {
+                    return item;
+                }
+            } catch (IndexOutOfBoundsException e) {
+                break;
+            }
+        }
+        return null;
+    }
+    
+    private Item selectFromFrontPage(Topic topic) {
+    	List<Item> items = topic.getCachedFrontPage(); // Should mark front page as dirty whenever sim runs.
+		if (items == null) {
+    		return null;
+    	}
+		
+    	Item item = null;
+        for (int i = 0; i < Math.min(20, items.size()); i++) {
+            try {
+                item = items.get(i);
                 if (!this.votedOnItem(item) && Utilities.percentChance(.5)) {
                     return item;
                 }

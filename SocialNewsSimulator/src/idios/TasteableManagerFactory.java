@@ -1,7 +1,7 @@
 package idios;
 
 public class TasteableManagerFactory {
-    public static final double MUTATION_RATE = 0.1;
+    public static final double MUTATION_RATE = 0.5;
     public static final double DEFAULT_SKEW = -0.25;
 
     public static TasteableManager<User> createUserManager() {
@@ -56,7 +56,8 @@ public class TasteableManagerFactory {
 
             @Override
             public Item create() {
-                TasteProfile taste = TasteProfile.skewedRandom(skew);
+                TasteProfile taste = new TasteProfile(new double[TasteProfile.NUM_PREFS]);
+                taste = TasteProfile.mutate(taste, 1);
                 return new Item(taste, topic);
             }
         };

@@ -3,6 +3,7 @@ package idios;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ public abstract class VoteBasedRanking implements RankingStrategy {
 
     protected Map<Item, Integer> ups;
     protected Map<Item, Integer> downs;
+    private static final Date dateRenderer = new Date();
 
     @Override
     public List<Item> rankItems(List<Item> items) {
@@ -55,7 +57,8 @@ public abstract class VoteBasedRanking implements RankingStrategy {
     }
     
     public String renderItem(Item item) {
-        return String.format("%s: score %d, up: %d, down: %d, time: %d", item, score(item), ups.get(item), downs.get(item), item.timestamp);
+    	//dateRenderer.setTime(((long)item.timestamp)*1000);
+        return String.format("%s: score %d, up: %d, down: %d, age: %0$.1f hrs", item, score(item), ups.get(item), downs.get(item), ((double)(Simulation.getWorldTime() - item.timestamp))/3600.0);
     }
 
 }

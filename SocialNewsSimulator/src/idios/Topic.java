@@ -3,7 +3,7 @@ package idios;
 import java.util.List;
 
 public class Topic {
-    public static final int NUM_ITEMS_ON_FRONT_PAGE = 10;
+    public static final int NUM_ITEMS_ON_FRONT_PAGE = 50;
     private final TasteableManager<Item> itemManager = TasteableManagerFactory.createItemManager(this);
     private final RecordManager<Vote> voteManager = new RecordManager<>();
     
