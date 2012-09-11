@@ -6,6 +6,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/* TODO:
+ * 
+ * Add topic understanding vector; vector of weights to apply to taste when considering an item from a particular topic.
+ * Add learning from viewing front page.
+ */
+
 public class User extends Tasteable {
     
     private Map<Item, Vote> itemsToVotes = new HashMap<>();
@@ -26,9 +32,9 @@ public class User extends Tasteable {
         // Should the user just downvote anything he doesn't upvote, or should he have a range of apathy where he doesn't vote at all (like now)?
         double rating = this.taste.dot(item.taste);
         //System.out.println("\tUser "+ this + " rated \n\titem "+ item +" as " + String.format("%0$.2f", rating));
-        if (rating > this.taste.length) {
+        if (rating > 12) { // If this threshold is constant, then length of taste vector is kind of like willingness to vote.
             voteUp(item);
-        } else if (rating < -0.5) {
+        } else if (rating < 0) {
             voteDown(item);
         } else {
             voteMeh(item);
@@ -107,7 +113,7 @@ public class User extends Tasteable {
     private Item selectFromFrontPage(Topic topic) {
     	List<Item> items = topic.getCachedFrontPage(); // Should mark front page as dirty whenever sim runs.
 		if (items == null) {
-    		return null;
+    		return selectFromNewItems(topic);
     	}
 		
     	Item item = null;
@@ -121,7 +127,7 @@ public class User extends Tasteable {
                 break;
             }
         }
-        return null;
+        return selectFromNewItems(topic);
     }
     
 }

@@ -14,7 +14,8 @@ public abstract class Tasteable extends Record {
     }
 
     public String toString() {
-        return "(" + getID() + ", " + taste.toString() + ", " + String.format("%0$.2f", taste.length) + ")";
+//        return "(" + getID() + ", " + taste.toString() + ", " + String.format("%0$.2f", taste.length) + ")";
+    	return "(" + getID() + ", " + String.format("%0$.2f", taste.length) + ")";
     }
 
 }

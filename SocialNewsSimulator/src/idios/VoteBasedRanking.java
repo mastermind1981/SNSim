@@ -39,9 +39,11 @@ public abstract class VoteBasedRanking implements RankingStrategy {
                 @Override
                 public int compare(Item o1, Item o2) {
     //                return o1.getVotes().size() - o2.getVotes().size();
-                    if (o1 == o2)
+                	double rank1 = itemRank(o1);
+                	double rank2 = itemRank(o2);
+                    if (o1 == o2 ||rank1 == rank2)
                         return 0;
-                    return itemRank(o1) < itemRank(o2) ? 1 : -1;
+                    return rank1 < rank2 ? 1 : -1;
                 }
                 
             });
@@ -53,7 +55,13 @@ public abstract class VoteBasedRanking implements RankingStrategy {
 
     @Override
     public int score(Item item) {
-        return ups.get(item) - downs.get(item);
+        try {
+			return ups.get(item) - downs.get(item);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return 0;
+		}
     }
     
     public String renderItem(Item item) {

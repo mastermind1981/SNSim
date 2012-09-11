@@ -1,7 +1,11 @@
 package idios.gui;
 
+import idios.Item;
 import idios.RedditRanking;
 import idios.Simulation;
+import idios.TasteProfile;
+import idios.Topic;
+import idios.VoteBasedRanking;
 
 import java.awt.EventQueue;
 
@@ -106,7 +110,7 @@ public class ApplicationView {
         );
         
         final JSpinner simDurationSpinner = new JSpinner();
-        simDurationSpinner.setModel(new SpinnerNumberModel(new Integer(24), new Integer(0), null, new Integer(1)));
+        simDurationSpinner.setModel(new SpinnerNumberModel(new Integer(3600), new Integer(0), null, new Integer(1)));
         
         JButton btnRun = new JButton("Run");
 
@@ -221,9 +225,10 @@ public class ApplicationView {
         JScrollPane scrollPane = new JScrollPane();
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         
-        final JList<String> itemList = new JList<>();
+        final JList<Item> itemList = new JList<>();
         scrollPane.setViewportView(itemList);
         itemList.setVisibleRowCount(80);
+        itemList.setCellRenderer(new TimestampColoredRow(sim));
 //        itemList.setBounds(228, 7, 0, 0);
         itemList.setModel(getKingsFrontPageModel());
         GroupLayout gl_frontPagePanel = new GroupLayout(frontPagePanel);
@@ -256,7 +261,7 @@ public class ApplicationView {
                 for (int i = 0; i < fitness.length; i++) {
                 	satisfaction += fitness[i];
                 }
-                satisfaction /= fitness.length;
+                satisfaction /= fitness.length * TasteProfile.NUM_PREFS * Simulation.NUM_ITEMS_DISPLAYED_ON_FRONT_PAGE;
                 txtSatisfaction.setText(String.format("%0$.2f", satisfaction));
             }
         });
@@ -266,6 +271,8 @@ public class ApplicationView {
         		int numInitialUsers = (Integer) spnInitialUsers.getValue();
         		int numNewUsers = (Integer) spnNewUsers.getValue();
         		initSimulation(numInitialUsers, numNewUsers);
+        		itemList.setCellRenderer(new TimestampColoredRow(sim));
+        		itemList.setModel(getKingsFrontPageModel());
         	}
 		});
     }

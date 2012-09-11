@@ -1,7 +1,7 @@
 package idios;
 
 public class TasteableManagerFactory {
-    public static final double MUTATION_RATE = 0.5;
+    public static final double MUTATION_RATE = 0.75;
     public static final double DEFAULT_SKEW = -0.25;
 
     public static TasteableManager<User> createUserManager() {

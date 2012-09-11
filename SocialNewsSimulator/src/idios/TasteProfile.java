@@ -7,7 +7,7 @@ import idios.util.Utilities;
 // short vector means more discriminating, long means lower standards.
 
 public class TasteProfile {
-    public static final int NUM_PREFS = 3;
+    public static final int NUM_PREFS = 50;
     private final double[]        preferences;
     private final String repr;
     public final double length;

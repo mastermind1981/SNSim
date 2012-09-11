@@ -9,7 +9,8 @@ import java.util.Map;
 
 public class Simulation {
 
-    private static int worldTime = 0;
+    public static final int NUM_ITEMS_DISPLAYED_ON_FRONT_PAGE = 20;
+	private static int worldTime = 0;
     private static int linksPerHour = 100;
     private static double minutesPerLink = 3;
     private final int initialUsers;
@@ -55,6 +56,12 @@ public class Simulation {
     public void run(int duration) {
         for (int i = 0; i < duration; i++) {
             step();
+            try {
+            	if (i % 300 == 0)
+            		frontPage("kings");
+			} catch (Exception e) {
+				
+			}
         }
     }
 
@@ -78,11 +85,11 @@ public class Simulation {
     }
     
     public List<Item> frontPage(final String topicName) {
-        return rankingStrategy.rankItems(topics.get(topicName).getItemManager().getRecords()).subList(0, 10);
+        return topics.get(topicName).frontPage(rankingStrategy);
     }
     
     public double[] judgeFitnessOfFrontPage(final String topicName) {
-        List<Item> frontPage = this.frontPage(topicName);
+        List<Item> frontPage = this.frontPage(topicName).subList(0, NUM_ITEMS_DISPLAYED_ON_FRONT_PAGE);
         TasteProfile[] tastes = new TasteProfile[frontPage.size()];
         List<User> users = userManager.getRecords();
         double[] fitness = new double[users.size()];

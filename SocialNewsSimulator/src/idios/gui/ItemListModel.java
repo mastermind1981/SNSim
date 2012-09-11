@@ -1,12 +1,13 @@
 package idios.gui;
 
+import idios.Item;
 import idios.Simulation;
 import idios.Topic;
 
 import javax.swing.AbstractListModel;
 
 @SuppressWarnings("serial")
-public class ItemListModel extends AbstractListModel<String> {
+public class ItemListModel extends AbstractListModel<Item> {
 
     private Topic topic;
     private Simulation sim;
@@ -18,8 +19,8 @@ public class ItemListModel extends AbstractListModel<String> {
     }
     
     @Override
-    public String getElementAt(int index) {
-        return sim.getRankingStrategy().renderItem(topic.getCachedFrontPage().get(index));
+    public Item getElementAt(int index) {
+        return topic.getCachedFrontPage().get(index);
     }
 
     @Override
